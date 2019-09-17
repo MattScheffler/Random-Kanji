@@ -22,6 +22,19 @@ def page_get(web_page):
     return jisho_page
 
 
+# Get kanji to search for from dictionary file
+def kanji_get():
+    with codecs.open("KanjiDictionary.txt", "r", encoding = "utf-8") as kd:
+        for line_count, line in enumerate(kd, start = 1):
+            pass
+        kanji_select = random.choice(range(0, line_count))
+        kd.seek(0)
+        for n in range(0, kanji_select):
+            kd.readline()
+        random_kanji = kd.readline().strip()
+    return random_kanji
+
+
 # Gets a random kanji and pulls info from jisho
 def kanji_info_get(kanji):
     '''List of kanji info to get'''
@@ -88,7 +101,7 @@ def kanji_info_get(kanji):
         return [kanji, meanings, strokes, kanji_readings, common_words]
 
 
-# Test function to print kanji info in comman line
+# Test function to print kanji info in command line
 def kanji_info_print(kanji_data):
     print("Kanji:", kanji_data[0])
     print("Meanings:", kanji_data[1])
@@ -105,6 +118,20 @@ def kanji_info_print(kanji_data):
 def kanji_page_show():
     pass
 
+
+def main():
+    menu_choice = str()
+    while (menu_choice != "2"):
+        print("1. Get random kanji info")
+        print("2. Quit")
+        menu_choice = input("Selection: ")
+        if (menu_choice == "1"):
+            print("~"*50)
+            kanji_info_print(kanji_info_get(kanji_get()))
+            print("~"*50)
+        print()
+    print("Goodbye")
+        
 '''
 # Pulled 常用漢字 from wikipedia
 wiki_soup = BeautifulSoup(requests.get("https://en.wikipedia.org/wiki/List_of_jōyō_kanji").text, "lxml")
@@ -115,12 +142,7 @@ with codecs.open("KanjiDictionary2.txt", "w", encoding = "utf-8") as kd:
 '''
 
 '''~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-# Get kanji to search for from dictionary file
-kanji_select = random.choice(range(0, 2502))
-with codecs.open("KanjiDictionary.txt", "r", encoding = "utf-8") as kd:
-    for n in range(0, kanji_select):
-        kd.readline()
-    random_kanji = kd.readline().strip()
 
-kanji_info_print(kanji_info_get(random_kanji))
 
+#kanji_info_print(kanji_info_get(kanji_get()))
+main()

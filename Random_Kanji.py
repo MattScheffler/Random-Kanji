@@ -1,10 +1,9 @@
 # Program Goal:
 # Select a random kanji from a dictionary of 常用漢字
-# Return kanji information and common words using it from jisho.org
-# Will eventually use tkinter to display info
+# Return kanji information and common words from jisho.org in a window
 
 from bs4 import BeautifulSoup
-import requests, random, time, codecs #, tkinter
+import requests, random, time, codecs, tkinter
 
 # Use requests to get webpage
 def page_get(web_page):
@@ -103,6 +102,8 @@ def kanji_info_get(kanji):
 
 # Test function to print kanji info in command line
 def kanji_info_print(kanji_data):
+    if (kanji_data == None):
+        return
     print("Kanji:", kanji_data[0])
     print("Meanings:", kanji_data[1])
     print("Stroke Count:", kanji_data[2])
@@ -115,8 +116,46 @@ def kanji_info_print(kanji_data):
 
 
 # Takes in information from kanji_info_get() and displays it in a window
-def kanji_page_show():
-    pass
+def kanji_page_show(kanji_data):
+    root = tkinter.Tk()
+    root.title("Kanji Information")
+    root.geometry("800x900")
+
+    root_scroll = tkinter.Scrollbar(root)
+    root_scroll.pack(side = tkinter.RIGHT, fill = tkinter.Y)
+
+    kanji_message = tkinter.Message(root, text = kanji_data[0])
+    kanji_message.config(font = ("times", 150, "bold"))
+    kanji_message.pack(fill = tkinter.X)
+
+    on_label = tkinter.Label(root, text = kanji_data[3]["on"])
+    on_label.config(font = ("times", 20, ""))
+    on_label.pack()
+
+    kun_label = tkinter.Label(root, text = kanji_data[3]["kun"])
+    kun_label.config(font = ("times", 20, ""))
+    kun_label.pack()
+
+    stroke_label = tkinter.Label(root, text = "Strokes: " + kanji_data[2])
+    stroke_label.config(font = ("times", 20, ""))
+    stroke_label.pack()
+
+    meaning_label = tkinter.Label(root, text = "Meanings: " + kanji_data[1] + "\n")
+    meaning_label.config(font = ("times", 20, ""))
+    meaning_label.pack()
+
+    root_scroll = tkinter.Scrollbar(root)
+    root_scroll.pack(side = tkinter.RIGHT)
+    
+    common_lb = tkinter.Listbox(root, yscrollcommand = root_scroll.set)
+    common_lb.insert(tkinter.END, "Common Words")
+    for key, value in kanji_data[4].items():
+        common_lb.insert(tkinter.END, key + str(value[0]) + ": " + str(value[1]))
+    common_lb.config(font = ("times", 20, ""))
+    common_lb.pack(fill = tkinter.BOTH)
+    root_scroll.config(command = common_lb.yview)
+
+    root.mainloop()
 
 
 def main():
@@ -126,9 +165,15 @@ def main():
         print("2. Quit")
         menu_choice = input("Selection: ")
         if (menu_choice == "1"):
+            #Text version
+            '''
             print("~"*50)
             kanji_info_print(kanji_info_get(kanji_get()))
             print("~"*50)
+            '''
+            #graphical page
+            #kanji_page_show(kanji_info_get("科"))
+            kanji_page_show(kanji_info_get(kanji_get()))
         print()
     print("Goodbye")
         
@@ -144,5 +189,4 @@ with codecs.open("KanjiDictionary2.txt", "w", encoding = "utf-8") as kd:
 '''~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
 
 
-#kanji_info_print(kanji_info_get(kanji_get()))
 main()

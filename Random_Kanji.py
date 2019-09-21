@@ -1,9 +1,9 @@
-# Program Goal:
-# Select a random kanji from a dictionary of 常用漢字
-# Return kanji information and common words from jisho.org in a window
+# Selects a random kanji from a dictionary text file
+# Gets information on kanji from jisho.org and displays in command line or a window
 
 from bs4 import BeautifulSoup
 import requests, random, time, codecs, tkinter
+
 
 # Use requests to get webpage
 def page_get(web_page):
@@ -21,7 +21,7 @@ def page_get(web_page):
     return jisho_page
 
 
-# Get kanji to search for from dictionary file
+# Get kanji from dictionary file
 def kanji_get():
     with codecs.open("KanjiDictionary.txt", "r", encoding = "utf-8") as kd:
         for line_count, line in enumerate(kd, start = 1):
@@ -34,18 +34,14 @@ def kanji_get():
     return random_kanji
 
 
-# Gets a random kanji and pulls info from jisho
+# Pulls info from jisho.org
 def kanji_info_get(kanji):
-    '''List of kanji info to get'''
-    #1. Common words
-    #2. On/Kun readings (#kanji page)
-    #3. Stroke count (#kanji page)
-    #4. Meanings (#kanji page)
-    
-    '''Kanji page'''
-    # https://jisho.org/search/[KANJI]%20%23kanji
-    '''Common words page'''
-    # https://jisho.org/search/%23word%20%23common%20%3F*[KANJI]
+    '''This will return'''
+    #1. The kanji
+    #2. Kanji meanings
+    #3. Stroke count
+    #4. On/kun readings
+    #5. Common words containing the kanji
     
     kanji_page = "https://jisho.org/search/" + kanji + "%20%23kanji"
     common_page = "https://jisho.org/search/%23word%20%23common%20*" + kanji + "*"
@@ -93,17 +89,19 @@ def kanji_info_get(kanji):
                 word = div.find("span", class_ = "text").string.strip()
                 reading = div.find("span", class_ = "furigana").text.strip()
                 meaning = div.find("span", class_ = "meaning-meaning").text.strip()
-                common_words[word] = [[reading],[meaning]]
+                common_words[word] = [reading, meaning]
             except AttributeError:
                 pass
 
         return [kanji, meanings, strokes, kanji_readings, common_words]
 
 
-# Test function to print kanji info in command line
+# Prints kanji info in command line
 def kanji_info_print(kanji_data):
     if (kanji_data == None):
         return
+    print()
+    print("~"*70)
     print("Kanji:", kanji_data[0])
     print("Meanings:", kanji_data[1])
     print("Stroke Count:", kanji_data[2])
@@ -112,10 +110,11 @@ def kanji_info_print(kanji_data):
     print()
     print("Common Words:")
     for word, info in kanji_data[4].items():
-        print(word + ":", info)
+        print(word + " (" + info[0] + "): " + info[1])
+    print("~"*70)
 
 
-# Takes in information from kanji_info_get() and displays it in a window
+# Displays kanji info in a window
 def kanji_page_show(kanji_data):
     root = tkinter.Tk()
     root.title("Kanji Information")
@@ -150,9 +149,10 @@ def kanji_page_show(kanji_data):
     common_lb = tkinter.Listbox(root, yscrollcommand = root_scroll.set)
     common_lb.insert(tkinter.END, "Common Words")
     for key, value in kanji_data[4].items():
-        common_lb.insert(tkinter.END, key + str(value[0]) + ": " + str(value[1]))
+        common_lb.insert(tkinter.END, key + " (" + str(value[0]) + "): " + str(value[1]))
     common_lb.config(font = ("times", 20, ""))
     common_lb.pack(fill = tkinter.BOTH)
+    
     root_scroll.config(command = common_lb.yview)
 
     root.mainloop()
@@ -163,30 +163,26 @@ def main():
     while (menu_choice != "2"):
         print("1. Get random kanji info")
         print("2. Quit")
-        menu_choice = input("Selection: ")
+        menu_choice = input("Selection: ").strip()
         if (menu_choice == "1"):
             #Text version
             '''
-            print("~"*50)
             kanji_info_print(kanji_info_get(kanji_get()))
-            print("~"*50)
             '''
             #graphical page
-            #kanji_page_show(kanji_info_get("科"))
             kanji_page_show(kanji_info_get(kanji_get()))
         print()
     print("Goodbye")
-        
+
+'''~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''        
 '''
 # Pulled 常用漢字 from wikipedia
 wiki_soup = BeautifulSoup(requests.get("https://en.wikipedia.org/wiki/List_of_jōyō_kanji").text, "lxml")
 
-with codecs.open("KanjiDictionary2.txt", "w", encoding = "utf-8") as kd:
+with codecs.open("KanjiDictionary.txt", "w", encoding = "utf-8") as kd:
     for a in wiki_soup.find_all("a", class_ = "extiw"):
         kd.write(a.text.strip()[0])
 '''
-
 '''~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'''
-
 
 main()

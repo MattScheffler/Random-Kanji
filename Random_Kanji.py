@@ -160,16 +160,14 @@ def kanji_page_show(kanji_data):
 
 def main():
     menu_choice = str()
-    while (menu_choice != "2"):
-        print("1. Get random kanji info")
-        print("2. Quit")
+    while (menu_choice != "3"):
+        print("1. Get random kanji info (text version)")
+        print("2. Get random kanji info (graphical version)")
+        print("3. Quit")
         menu_choice = input("Selection: ").strip()
         if (menu_choice == "1"):
-            #Text version
-            '''
             kanji_info_print(kanji_info_get(kanji_get()))
-            '''
-            #graphical page
+        elif (menu_choice == "2"):
             kanji_page_show(kanji_info_get(kanji_get()))
         print()
     print("Goodbye")
